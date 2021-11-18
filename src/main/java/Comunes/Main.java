@@ -19,7 +19,7 @@ public class Main {
         PROB_CRUCE = 0.7;
         PROB_MUTACION = 0.05;
         NUM_ELITISTAS = 3;
-
+        TIPO_OPERADOR_CRUCE = 0;
 
     }
 
@@ -30,10 +30,12 @@ public class Main {
     }
 
     public void run() {
-        Poblacion poblacion = new Poblacion(TAM_POBLACION, NUM_GENERACIONES, PROB_CRUCE, PROB_MUTACION, NUM_ELITISTAS, TIPO_SELECCION_INDIVIUOS);
-        poblacion.generarPoblacion(TIPO_OPERADOR_MUTACION);
+        Poblacion poblacion = new Poblacion(TAM_POBLACION, NUM_GENERACIONES, PROB_CRUCE, PROB_MUTACION, NUM_ELITISTAS,
+                TIPO_SELECCION_INDIVIUOS, TIPO_OPERADOR_MUTACION, TIPO_OPERADOR_CRUCE);
+        poblacion.generarPoblacion();
         Individuo[] nuevaPoblacion = new Individuo[TAM_POBLACION];
         Individuo[] individuos = new Individuo[2];
+        Individuo[] individuosCruzados = new Individuo[2];
 
         //Comunes.Poblacion actual
         System.out.println("Iteracion: 0");
@@ -57,6 +59,32 @@ public class Main {
             }
 
             while (count < TAM_POBLACION) {
+
+                // Seleccion
+                individuos[0] = poblacion.seleccionIndividuos();
+                individuos[1] = poblacion.seleccionIndividuos();
+
+                // Cruce
+                if(poblacion.getNextDouble() < this.PROB_CRUCE){
+                    try {
+                        individuosCruzados = individuos[0].cruzar(individuos[1]);
+                    } catch (TipoCruceNoValidoException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // Mutacion
+                if (poblacion.getNextDouble() < PROB_MUTACION) {
+                    individuos[0].mutar();
+                }
+
+                if (poblacion.getNextDouble() < PROB_MUTACION) {
+                    individuos[1].mutar();
+                }
+
+
+                // TODO Ver tipo reemplazamiento
+                nuevaPoblacion =
 
             }
 
