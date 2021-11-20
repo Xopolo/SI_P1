@@ -11,26 +11,14 @@ public class IndividuoRastrigin extends Individuo {
     private final double limite;
 
     public IndividuoRastrigin(int tipo_mutacion, int tipo_cruce) {
-        this(5.12d, tipo_mutacion, tipo_cruce);
-    }
-
-    public IndividuoRastrigin(double limite, int tipo_mutacion, int tipo_cruce) {
         super(tipo_mutacion, tipo_cruce);
         this.valido = true;
-        this.limite = limite;
+        this.limite = 5.12d;
         coords = new double[N];
-        Random rnd = new Random(System.nanoTime());
+        Random rnd = new Random();
         for (int i = 0; i < coords.length; i++) {
             coords[i] = ((rnd.nextDouble() * 2) - 1) * this.limite;
         }
-    }
-
-    public double[] getCoords() {
-        return coords;
-    }
-
-    public void setCoords(double[] coords) {
-        this.coords = coords;
     }
 
     public double evaluar() {

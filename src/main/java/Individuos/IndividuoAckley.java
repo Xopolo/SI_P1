@@ -56,4 +56,5 @@ public class IndividuoAckley extends Individuo {
     public void setValido(boolean valido) {
         this.valido = valido;
     }
+
 }

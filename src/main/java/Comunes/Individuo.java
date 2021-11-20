@@ -2,7 +2,7 @@ package Comunes;
 
 import java.util.Random;
 
-public abstract class Individuo {
+public abstract class Individuo implements Comparable<Individuo>{
 
     protected Double fitness;
     protected final int tipo_mutacion;
@@ -13,8 +13,8 @@ public abstract class Individuo {
     protected int N;
     private Random rnd;
 
-
     public Individuo(int tipo_mutacion, int tipo_cruce) {
+
         rnd = new Random(System.nanoTime());
         valido = true;
         this.tipo_mutacion = tipo_mutacion;
@@ -25,7 +25,15 @@ public abstract class Individuo {
         return fitness;
     }
 
-    public abstract double evaluar();
+    public double[] getCoords() {
+        return coords;
+    }
+
+    public void setCoords(double[] coords) {
+        this.coords = coords;
+    }
+
+    protected abstract Individuo getNewIndividuo();
 
     public boolean isValido() {
         for (int i = 0; i < coords.length; i++) {
@@ -36,6 +44,8 @@ public abstract class Individuo {
 
         return valido;
     }
+
+    public abstract double evaluar();
 
     public void mutar() {
         Random rnd = new Random();
@@ -56,9 +66,9 @@ public abstract class Individuo {
         isValido();
     }
 
-
     public Individuo[] cruzar(Individuo individuo2) throws TipoCruceNoValidoException {
-        if(this.getClass() != individuo2.getClass()) return null;
+
+        if (this.getClass() != individuo2.getClass()) return null;
         switch (tipo_cruce) {
             case 0: // Cruce en un punto
                 return cruceEnPunto(individuo2);
@@ -72,24 +82,86 @@ public abstract class Individuo {
             default:
                 throw new TipoCruceNoValidoException();
         }
-
     }
-    //TODO Cruces
-
 
     private Individuo[] cruceEnPunto(Individuo individuo2) {
         int cambio = rnd.nextInt(this.coords.length);
-        Individuo nuevo = this.getNewIndividuo();
-        // Cambia de coordenada de individuo a partir del cambio
+        Individuo[] nuevo = new Individuo[]{this.getNewIndividuo(), this.getNewIndividuo()};
+        double[] coords_nuevo1 = nuevo[0].getCoords();
+        double[] coords_nuevo2 = nuevo[0].getCoords();
+
+        int i;
+        for (i = 0; i < cambio; ++i) {
+            coords_nuevo1[i] = coords[i];
+            coords_nuevo2[i] = individuo2.getCoords()[i];
+        }
+        for (; i < coords.length; ++i) {
+            coords_nuevo1[i] = individuo2.getCoords()[i];
+            coords_nuevo1[i] = coords[i];
+        }
+        nuevo[0].setCoords(coords_nuevo1);
+        nuevo[1].setCoords(coords_nuevo2);
+
+        return nuevo;
     }
 
     private Individuo[] cruceUniforme(Individuo individuo2) {
         // Se hace un random de que coordenada coger para cada posicion
+        Individuo[] nuevo = new Individuo[]{this.getNewIndividuo(), this.getNewIndividuo()};
+        double[] coords_nuevo = nuevo[0].getCoords();
+        double[] coords_nuevo1 = nuevo[0].getCoords();
+        for (int i = 0; i < coords_nuevo.length; i++) {
+            boolean b = rnd.nextBoolean();
+            coords_nuevo[i] = b ? coords[i] : individuo2.getCoords()[i];
+            coords_nuevo1[i] = b ? individuo2.getCoords()[i] : coords[i];
+        }
+        nuevo[0].setCoords(coords_nuevo);
+        nuevo[1].setCoords(coords_nuevo);
+        return nuevo;
+
     }
 
     private Individuo[] cruceMultipunto(Individuo individuo2) {
         // Como el cruce en un punto PERO con dos puntos
+        Individuo[] nuevo = new Individuo[]{this.getNewIndividuo(), this.getNewIndividuo()};
+        double[] coords_nuevo1 = nuevo[0].getCoords();
+        double[] coords_nuevo2 = nuevo[0].getCoords();
+
+        switch (rnd.nextInt(3)) {
+            case 0:
+                coords_nuevo1[0] = coords[0];
+                coords_nuevo1[1] = individuo2.getCoords()[1];
+                coords_nuevo1[2] = coords[2];
+                coords_nuevo2[0] = individuo2.getCoords()[0];
+                coords_nuevo2[1] = coords[1];
+                coords_nuevo2[2] = individuo2.getCoords()[2];
+                break;
+            case 1:
+                coords_nuevo1[0] = coords[0];
+                coords_nuevo1[1] = individuo2.getCoords()[1];
+                coords_nuevo1[2] = individuo2.getCoords()[2];
+                coords_nuevo2[0] = individuo2.getCoords()[0];
+                coords_nuevo2[1] = coords[1];
+                coords_nuevo2[2] = coords[2];
+                break;
+            case 2:
+                coords_nuevo1[0] = coords[0];
+                coords_nuevo1[1] = coords[1];
+                coords_nuevo1[2] = individuo2.getCoords()[2];
+                coords_nuevo2[0] = individuo2.getCoords()[0];
+                coords_nuevo2[1] = individuo2.getCoords()[1];
+                coords_nuevo2[2] = coords[2];
+                break;
+        }
+
+        nuevo[0].setCoords(coords_nuevo1);
+        nuevo[1].setCoords(coords_nuevo2);
+
+        return nuevo;
     }
 
-    protected abstract Individuo getNewIndividuo();
+    public int compareTo(Individuo o) {
+        return Double.compare(getFitness(), o.getFitness());
+    }
+
 }

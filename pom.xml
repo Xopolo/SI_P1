@@ -7,6 +7,10 @@
     <groupId>P1_S1</groupId>
     <artifactId>SI_P1</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
 
-    
+
 </project>

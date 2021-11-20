@@ -33,15 +33,14 @@ public class IndividuoBukin extends Individuo {
         return fitness;
     }
 
-    //TODO Hacer con limites
     @Override
     public boolean isValido() {
-        for (int i = 0; i < coords.length; i++) {
-            if (coords[i] < -limite || coords[i] > limite) {
-                valido = false;
-            }
-        }
 
+        if (coords[0] < -limiteXizq || coords[0] > limiteXder) {
+            valido = false;
+        } else if (coords[1] < -limiteY || coords[1] > limiteY) {
+            valido = false;
+        }
         return valido;
     }
 

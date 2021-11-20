@@ -87,10 +87,12 @@ public class Poblacion {
         fitness_total = 0;
         colaMejoresIndividuos = null;
 
+
         for (Individuo ind : poblacion
         ) {
             fitness_total += ind.evaluar();
         }
+
 
         colaMejoresIndividuos = new ColaMejoresIndividuos(NUM_ELITISTAS);
         for (int i = 0; i < TAM_POBLACION; i++) { // Para almacenar los primeros
@@ -100,11 +102,11 @@ public class Poblacion {
         return fitness_total;
     }
 
+    public ColaMejoresIndividuos getColaMejoresIndividuos() {
+        return colaMejoresIndividuos;
+    }
 
     public Individuo getIndividuoConMejorFitnessEnPos(int posicion) {
-        if (!evaluado) {
-            evaluar();
-        }
         return colaMejoresIndividuos.get(posicion);
     }
 
@@ -131,9 +133,6 @@ public class Poblacion {
 
 
     public Individuo rouletteWheelSelection() {
-        if (!evaluado) {
-            evaluar();
-        }
         double[] fitnessInvertido = new double[TAM_POBLACION];
         double totalFitnessInvertido = 0;
 
@@ -150,7 +149,7 @@ public class Poblacion {
         return poblacion[idx - 1];
     }
 
-    public double getNextDouble(){
+    public double getNextDouble() {
         return rnd.nextDouble();
     }
 

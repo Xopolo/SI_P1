@@ -18,9 +18,11 @@ public class Main {
         NUM_GENERACIONES = 2000;
         PROB_CRUCE = 0.7;
         PROB_MUTACION = 0.05;
-        NUM_ELITISTAS = 3;
-        TIPO_OPERADOR_CRUCE = 0;
-
+        NUM_ELITISTAS = 4;
+        TIPO_SELECCION_INDIVIUOS = 0;
+        ESTRATEGIA_REEMPLAZAMIENTO = 0;
+        TIPO_OPERADOR_MUTACION = 0;
+        TIPO_OPERADOR_CRUCE = 1;
     }
 
 
@@ -35,25 +37,21 @@ public class Main {
         poblacion.generarPoblacion();
         Individuo[] nuevaPoblacion = new Individuo[TAM_POBLACION];
         Individuo[] individuos = new Individuo[2];
-        Individuo[] individuosCruzados = new Individuo[2];
+//        Individuo[] individuosCruzados = new Individuo[2];
 
         //Comunes.Poblacion actual
         System.out.println("Iteracion: 0");
-        System.out.println("Fitness total: " + poblacion.getFitness_total());
-        Individuo individuoConMejorFitnessEnPos = poblacion.getIndividuoConMejorFitnessEnPos(0);
-        System.out.println("Mejor Individuo: " + individuoConMejorFitnessEnPos.toString());
-        System.out.println("Mejor Fitness individual: " + individuoConMejorFitnessEnPos.getFitness());
-
-        System.out.println("Pruebas cola");
-        for (int i = 0; i < NUM_ELITISTAS; i++) {
-            System.out.println(poblacion.getIndividuoConMejorFitnessEnPos(i));
-        }
+        System.out.println("Total Fitness = " + poblacion.getFitness_total());
+        System.out.println("Mejor Fitness = "
+                + poblacion.getIndividuoConMejorFitnessEnPos(0).getFitness());
+        System.out.print("Mejor Individuo: ");
+        System.out.println(poblacion.getIndividuoConMejorFitnessEnPos(0).toString());
 
         int count;
         for (int num_iteracion = 0; num_iteracion < NUM_GENERACIONES; num_iteracion++) {
             count = 0;
-
-            for (int j = 0; num_iteracion < NUM_ELITISTAS; ++num_iteracion) {
+            nuevaPoblacion = new Individuo[TAM_POBLACION];
+            for (int j = 0; j < NUM_ELITISTAS; ++j) {
                 nuevaPoblacion[count] = poblacion.getIndividuoConMejorFitnessEnPos(j);
                 count++;
             }
@@ -65,10 +63,11 @@ public class Main {
                 individuos[1] = poblacion.seleccionIndividuos();
 
                 // Cruce
-                if(poblacion.getNextDouble() < this.PROB_CRUCE){
+                if (poblacion.getNextDouble() < this.PROB_CRUCE) {
                     try {
-                        individuosCruzados = individuos[0].cruzar(individuos[1]);
+                        individuos = individuos[0].cruzar(individuos[1]);
                     } catch (TipoCruceNoValidoException e) {
+                        System.out.println("No se puede realizar el cruce");
                         e.printStackTrace();
                     }
                 }
@@ -82,11 +81,29 @@ public class Main {
                     individuos[1].mutar();
                 }
 
-
-                // TODO Ver tipo reemplazamiento
-                nuevaPoblacion =
-
+                nuevaPoblacion[count] = individuos[0];
+                nuevaPoblacion[count + 1] = individuos[1];
+                count += 2;
             }
+
+            if (ESTRATEGIA_REEMPLAZAMIENTO == 0) {
+                // Esquema generacional
+
+                poblacion.setPoblacion(nuevaPoblacion.clone());
+            } else {
+                // TODO Hay que mezclar ambas poblaciones
+            }
+
+            poblacion.evaluar();
+            System.out.println("******************************************************************" +
+                    "*****************************************************************************");
+            System.out.println("Iteracion: " + (num_iteracion + 1));
+            System.out.println("Total Fitness = " + poblacion.getFitness_total());
+            System.out.println("Mejor Fitness = "
+                    + poblacion.getIndividuoConMejorFitnessEnPos(0).getFitness());
+            System.out.print("Mejor Individuo: ");
+            System.out.println(poblacion.getIndividuoConMejorFitnessEnPos(0).toString());
+
 
         }
 
