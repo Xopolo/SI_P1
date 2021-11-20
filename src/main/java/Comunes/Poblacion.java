@@ -5,7 +5,9 @@ import Individuos.IndividuoBeale;
 import Individuos.IndividuoBukin;
 import Individuos.IndividuoRastrigin;
 
+import java.util.Arrays;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Poblacion {
     int TAM_POBLACION;
@@ -14,20 +16,24 @@ public class Poblacion {
     double PROB_MUTACION;
     int NUM_ELITISTAS;
     int TIPO_SELECCION_INDIVIUOS;
+    int TIPO_POBLACION;
     int TIPO_CRUCE;
     int TIPO_MUTACION;
     boolean CRITERIO_ASCENDENTE;
 
     private Individuo[] poblacion;
     private double fitness_total;
-    private boolean evaluado;
-    private ColaMejoresIndividuos colaMejoresIndividuos;
     private Random rnd;
 
-    public Poblacion(int TAM_POBLACION, int NUM_GENERACIONES, double PROB_CRUCE, double PROB_MUTACION, int NUM_ELITISTAS, int TIPO_SELECCION_INDIVIUOS, int TIPO_MUTACION, int TIPO_CRUCE) {
+    private double[] fitnessInvertido;
+    private double totalFitnessInvertido;
+
+
+    public Poblacion(int TAM_POBLACION, int NUM_GENERACIONES, double PROB_CRUCE, double PROB_MUTACION, int NUM_ELITISTAS, int TIPO_POBLACION, int TIPO_SELECCION_INDIVIUOS, int TIPO_MUTACION, int TIPO_CRUCE) {
         this.TIPO_CRUCE = TIPO_CRUCE;
         this.TIPO_MUTACION = TIPO_MUTACION;
         this.TAM_POBLACION = TAM_POBLACION;
+        this.TIPO_POBLACION = TIPO_POBLACION;
         this.NUM_GENERACIONES = NUM_GENERACIONES;
         this.PROB_CRUCE = PROB_CRUCE;
         this.PROB_MUTACION = PROB_MUTACION;
@@ -38,8 +44,8 @@ public class Poblacion {
 
     public void generarPoblacion() {
         poblacion = new Individuo[TAM_POBLACION];
-        for (int i = 0; i < TAM_POBLACION; i++) {
-            switch (TIPO_SELECCION_INDIVIUOS) {
+        for (int i = 0; i < poblacion.length; i++) {
+            switch (TIPO_POBLACION) {
                 case 0:
                     poblacion[i] = new IndividuoRastrigin(TIPO_MUTACION, TIPO_CRUCE);
                     break;
@@ -56,7 +62,6 @@ public class Poblacion {
         }
 
         this.evaluar();
-        evaluado = true;
     }
 
     public Individuo[] getPoblacion() {
@@ -65,49 +70,38 @@ public class Poblacion {
 
     public void setPoblacion(Individuo[] poblacion) {
         this.poblacion = poblacion;
+        evaluar();
     }
 
     public double getFitness_total() {
         return fitness_total;
     }
 
-    public void setFitness_total(double fitness_total) {
-        this.fitness_total = fitness_total;
-    }
-
-    public boolean isEvaluado() {
-        return evaluado;
-    }
-
-    public void setEvaluado(boolean evaluado) {
-        this.evaluado = evaluado;
-    }
-
     public double evaluar() {
         fitness_total = 0;
-        colaMejoresIndividuos = null;
-
+        totalFitnessInvertido = 0;
+        fitnessInvertido = new double[poblacion.length];
 
         for (Individuo ind : poblacion
         ) {
             fitness_total += ind.evaluar();
         }
 
+        poblacion = Arrays.stream(poblacion)
+                .parallel()
+                .sorted(Individuo::compareTo).toArray(Individuo[]::new);
 
-        colaMejoresIndividuos = new ColaMejoresIndividuos(NUM_ELITISTAS);
-        for (int i = 0; i < TAM_POBLACION; i++) { // Para almacenar los primeros
-            colaMejoresIndividuos.add(poblacion[i]);
+        for (int i = 0; i < poblacion.length; i++) {
+            fitnessInvertido[i] = fitness_total / poblacion[i].getFitness();
+            totalFitnessInvertido += fitnessInvertido[i];
         }
 
         return fitness_total;
     }
 
-    public ColaMejoresIndividuos getColaMejoresIndividuos() {
-        return colaMejoresIndividuos;
-    }
 
     public Individuo getIndividuoConMejorFitnessEnPos(int posicion) {
-        return colaMejoresIndividuos.get(posicion);
+        return poblacion[posicion];
     }
 
     //TODO Terminar seleccion individuos
@@ -117,6 +111,7 @@ public class Poblacion {
                 return rouletteWheelSelection();
 
             case 1: // Método RANK
+
                 break;
 
             case 2: // Método Tournament
@@ -133,17 +128,10 @@ public class Poblacion {
 
 
     public Individuo rouletteWheelSelection() {
-        double[] fitnessInvertido = new double[TAM_POBLACION];
-        double totalFitnessInvertido = 0;
-
-        for (int i = 0; i < TAM_POBLACION; i++) {
-            fitnessInvertido[i] = fitness_total / poblacion[i].getFitness();
-            totalFitnessInvertido += fitnessInvertido[i];
-        }
 
         double randNum = rnd.nextDouble() * totalFitnessInvertido;
         int idx;
-        for (idx = 0; idx < TAM_POBLACION && randNum > 0; ++idx) {
+        for (idx = 0; idx < poblacion.length && randNum > 0; ++idx) {
             randNum -= fitnessInvertido[idx];
         }
         return poblacion[idx - 1];
@@ -153,4 +141,9 @@ public class Poblacion {
         return rnd.nextDouble();
     }
 
+    @SuppressWarnings({"MethodDoesntCallSuperMethod", "CloneDoesntDeclareCloneNotSupportedException"})
+    @Override
+    protected Poblacion clone(){
+        return new Poblacion(TAM_POBLACION, NUM_GENERACIONES, PROB_CRUCE, PROB_MUTACION, NUM_ELITISTAS, TIPO_POBLACION, TIPO_SELECCION_INDIVIUOS, TIPO_MUTACION, TIPO_CRUCE);
+    }
 }

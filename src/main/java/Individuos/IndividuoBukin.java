@@ -2,6 +2,7 @@ package Individuos;
 
 import Comunes.Individuo;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class IndividuoBukin extends Individuo {
@@ -11,25 +12,20 @@ public class IndividuoBukin extends Individuo {
     private int limiteY;
 
     public IndividuoBukin(int tipo_mutacion, int tipo_cruce) {
-        this(tipo_mutacion, tipo_cruce, -15, -5, 3);
-    }
-
-    public IndividuoBukin(int tipo_mutacion, int tipo_cruce, int limiteXizq, int limiteXder, int limiteY) {
 
         super(tipo_mutacion, tipo_cruce);
-        this.limiteXizq = limiteXizq;
-        this.limiteXder = limiteXder;
-        this.limiteY = limiteY;
+        this.limiteXizq = -15;
+        this.limiteXder = -5;
+        this.limiteY = 3;
         N = 2;
         coords = new double[N];
-        Random rnd = new Random(System.nanoTime());
         coords[0] = -(rnd.nextDouble() * 10) - 5;
-        coords[1] = ((rnd.nextDouble() * 2) - 1) * limiteY;
+        coords[1] = ((rnd.nextDouble() * 2) - 1) * this.limiteY;
     }
 
     @Override
     public double evaluar() {
-        fitness = 100.0 * Math.sqrt(Math.abs(coords[1]) - 0.01 * Math.pow(coords[0], 2)) + 0.01 * Math.abs(coords[0] + 10.0);
+        fitness = 100.0 * Math.sqrt(Math.abs(coords[1] - 0.01 * Math.pow(coords[0], 2))) + 0.01 * Math.abs(coords[0] + 10.0);
         return fitness;
     }
 
@@ -69,6 +65,16 @@ public class IndividuoBukin extends Individuo {
     }
 
     protected Individuo getNewIndividuo() {
+
+
         return new IndividuoBukin(tipo_mutacion, tipo_cruce);
+    }
+
+    @Override
+    public String toString() {
+        return "IndividuoBukin{" +
+                "fitness=" + fitness +
+                ", coords=" + Arrays.toString(coords) +
+                '}';
     }
 }

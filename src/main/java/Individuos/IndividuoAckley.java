@@ -2,27 +2,21 @@ package Individuos;
 
 import Comunes.Individuo;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class IndividuoAckley extends Individuo {
-    private double[] coords;
 
     public IndividuoAckley(int tipo_mutacion, int tipo_cruce) {
-        this(tipo_mutacion, tipo_cruce, 5);
-    }
-
-    public IndividuoAckley(int tipo_mutacion, int tipo_cruce, double limite) {
         super(tipo_mutacion, tipo_cruce);
-        this.limite = limite;
+        this.limite = 5;
         this.valido = true;
         N = 2;
         coords = new double[N];
-        Random rnd = new Random(System.nanoTime());
         for (int i = 0; i < coords.length; i++) {
             coords[i] = ((rnd.nextDouble() * 2) - 1) * this.limite;
         }
     }
-
 
     @Override
     public double evaluar() {
@@ -32,9 +26,10 @@ public class IndividuoAckley extends Individuo {
     }
 
     public boolean isValido() {
-        for (int i = 0; i < coords.length; i++) {
-            if (coords[i] < -limite || coords[i] > limite) {
+        for (double coord : coords) {
+            if (coord < -limite || coord > limite) {
                 valido = false;
+                break;
             }
         }
 
@@ -57,4 +52,11 @@ public class IndividuoAckley extends Individuo {
         this.valido = valido;
     }
 
+    @Override
+    public String toString() {
+        return "IndividuoAckley{" +
+                "fitness=" + fitness +
+                ", coords=" + Arrays.toString(coords) +
+                '}';
+    }
 }

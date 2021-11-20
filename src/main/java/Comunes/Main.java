@@ -1,5 +1,10 @@
 package Comunes;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class Main {
 
     int TAM_POBLACION;
@@ -10,19 +15,21 @@ public class Main {
 
     int ESTRATEGIA_REEMPLAZAMIENTO;
     int TIPO_OPERADOR_CRUCE;
+    int TIPO_POBLACION;
     int TIPO_OPERADOR_MUTACION;
     int TIPO_SELECCION_INDIVIUOS;
 
     {
-        TAM_POBLACION = 200;
-        NUM_GENERACIONES = 2000;
+        NUM_ELITISTAS = 20;
+        TAM_POBLACION = 1000 + NUM_ELITISTAS;
+        NUM_GENERACIONES = 5000;
         PROB_CRUCE = 0.7;
         PROB_MUTACION = 0.05;
-        NUM_ELITISTAS = 4;
-        TIPO_SELECCION_INDIVIUOS = 0;
+        TIPO_POBLACION = 0;
         ESTRATEGIA_REEMPLAZAMIENTO = 0;
-        TIPO_OPERADOR_MUTACION = 0;
-        TIPO_OPERADOR_CRUCE = 1;
+        TIPO_SELECCION_INDIVIUOS = 0;
+        TIPO_OPERADOR_MUTACION = 2;
+        TIPO_OPERADOR_CRUCE = 0;
     }
 
 
@@ -33,14 +40,12 @@ public class Main {
 
     public void run() {
         Poblacion poblacion = new Poblacion(TAM_POBLACION, NUM_GENERACIONES, PROB_CRUCE, PROB_MUTACION, NUM_ELITISTAS,
-                TIPO_SELECCION_INDIVIUOS, TIPO_OPERADOR_MUTACION, TIPO_OPERADOR_CRUCE);
+                TIPO_POBLACION, TIPO_SELECCION_INDIVIUOS, TIPO_OPERADOR_MUTACION, TIPO_OPERADOR_CRUCE);
         poblacion.generarPoblacion();
         Individuo[] nuevaPoblacion = new Individuo[TAM_POBLACION];
         Individuo[] individuos = new Individuo[2];
-//        Individuo[] individuosCruzados = new Individuo[2];
 
-        //Comunes.Poblacion actual
-        System.out.println("Iteracion: 0");
+        System.out.println("Iteracion 0");
         System.out.println("Total Fitness = " + poblacion.getFitness_total());
         System.out.println("Mejor Fitness = "
                 + poblacion.getIndividuoConMejorFitnessEnPos(0).getFitness());
@@ -48,9 +53,9 @@ public class Main {
         System.out.println(poblacion.getIndividuoConMejorFitnessEnPos(0).toString());
 
         int count;
-        for (int num_iteracion = 0; num_iteracion < NUM_GENERACIONES; num_iteracion++) {
+        for (int num_iteracion = 1; num_iteracion <= NUM_GENERACIONES; num_iteracion++) {
             count = 0;
-            nuevaPoblacion = new Individuo[TAM_POBLACION];
+
             for (int j = 0; j < NUM_ELITISTAS; ++j) {
                 nuevaPoblacion[count] = poblacion.getIndividuoConMejorFitnessEnPos(j);
                 count++;
@@ -67,7 +72,6 @@ public class Main {
                     try {
                         individuos = individuos[0].cruzar(individuos[1]);
                     } catch (TipoCruceNoValidoException e) {
-                        System.out.println("No se puede realizar el cruce");
                         e.printStackTrace();
                     }
                 }
@@ -88,22 +92,35 @@ public class Main {
 
             if (ESTRATEGIA_REEMPLAZAMIENTO == 0) {
                 // Esquema generacional
-
                 poblacion.setPoblacion(nuevaPoblacion.clone());
             } else {
-                // TODO Hay que mezclar ambas poblaciones
+                List<Individuo> mezcla = new ArrayList<>();
+                Poblacion nueva = poblacion.clone();
+                mezcla.addAll(Arrays.asList(poblacion.getPoblacion()));
+                mezcla.addAll(Arrays.asList(nueva.getPoblacion()));
+                mezcla = mezcla.stream()
+                        .parallel()
+                        .sorted(Individuo::compareTo)
+                        .distinct()
+                        .limit(TAM_POBLACION)
+                        .collect(Collectors.toList());
+
+                poblacion.setPoblacion(mezcla.toArray(new Individuo[0]));
+
             }
 
-            poblacion.evaluar();
-            System.out.println("******************************************************************" +
-                    "*****************************************************************************");
-            System.out.println("Iteracion: " + (num_iteracion + 1));
-            System.out.println("Total Fitness = " + poblacion.getFitness_total());
-            System.out.println("Mejor Fitness = "
-                    + poblacion.getIndividuoConMejorFitnessEnPos(0).getFitness());
-            System.out.print("Mejor Individuo: ");
-            System.out.println(poblacion.getIndividuoConMejorFitnessEnPos(0).toString());
+            if (num_iteracion % (NUM_GENERACIONES / 10) == 0) {
 
+                System.out.println("******************************************************************" +
+                        "*****************************************************************************");
+                System.out.println("Iteracion: " + num_iteracion);
+                System.out.println("Total Fitness = " + poblacion.getFitness_total());
+                System.out.println("Mejor Fitness = "
+                        + poblacion.getIndividuoConMejorFitnessEnPos(0).getFitness());
+                System.out.print("Mejor Individuo: ");
+                System.out.println(poblacion.getIndividuoConMejorFitnessEnPos(0).toString());
+
+            }
 
         }
 

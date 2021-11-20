@@ -2,21 +2,17 @@ package Individuos;
 
 import Comunes.Individuo;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class IndividuoBeale extends Individuo {
 
     public IndividuoBeale(int tipo_mutacion, int tipo_cruce) {
-        this(4.5d, tipo_mutacion, tipo_cruce);
-    }
-
-    public IndividuoBeale(double limite, int tipo_mutacion, int tipo_cruce) {
         super(tipo_mutacion, tipo_cruce);
         this.valido = true;
-        this.limite = limite;
+        this.limite = 4.5d;
         N = 2;
         coords = new double[N];
-        Random rnd = new Random(System.nanoTime());
         for (int i = 0; i < coords.length; i++) {
             coords[i] = ((rnd.nextDouble() * 2) - 1) * this.limite;
         }
@@ -34,4 +30,11 @@ public class IndividuoBeale extends Individuo {
         return new IndividuoBeale(tipo_mutacion, tipo_cruce);
     }
 
+    @Override
+    public String toString() {
+        return "IndividuoBeale{" +
+                "fitness=" + fitness +
+                ", coords=" + Arrays.toString(coords) +
+                '}';
+    }
 }

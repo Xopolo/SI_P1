@@ -1,8 +1,9 @@
 package Comunes;
 
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract class Individuo implements Comparable<Individuo>{
+public abstract class Individuo implements Comparable<Individuo> {
 
     protected Double fitness;
     protected final int tipo_mutacion;
@@ -11,7 +12,7 @@ public abstract class Individuo implements Comparable<Individuo>{
     protected double limite;
     protected boolean valido;
     protected int N;
-    private Random rnd;
+    protected Random rnd;
 
     public Individuo(int tipo_mutacion, int tipo_cruce) {
 
@@ -36,9 +37,10 @@ public abstract class Individuo implements Comparable<Individuo>{
     protected abstract Individuo getNewIndividuo();
 
     public boolean isValido() {
-        for (int i = 0; i < coords.length; i++) {
-            if (coords[i] < -limite || coords[i] > limite) {
+        for (double coord : coords) {
+            if (coord < -limite || coord > limite) {
                 valido = false;
+                break;
             }
         }
 
@@ -51,7 +53,7 @@ public abstract class Individuo implements Comparable<Individuo>{
         Random rnd = new Random();
         int coord_i = rnd.nextInt(coords.length);
         switch (tipo_mutacion) {
-            case 0:
+            case 0: //
                 coords[coord_i] += (rnd.nextDouble() * 2) - 1;
                 break;
             case 1:
@@ -75,10 +77,11 @@ public abstract class Individuo implements Comparable<Individuo>{
             case 1: // Cruce uniforme:
                 return cruceUniforme(individuo2);
             case 2:
-                if (N < 3) {
+                if (N >= 3) {
                     return cruceMultipunto(individuo2);
+                } else {
+                    throw new TipoCruceNoValidoException();
                 }
-                throw new TipoCruceNoValidoException();
             default:
                 throw new TipoCruceNoValidoException();
         }
@@ -87,8 +90,8 @@ public abstract class Individuo implements Comparable<Individuo>{
     private Individuo[] cruceEnPunto(Individuo individuo2) {
         int cambio = rnd.nextInt(this.coords.length);
         Individuo[] nuevo = new Individuo[]{this.getNewIndividuo(), this.getNewIndividuo()};
-        double[] coords_nuevo1 = nuevo[0].getCoords();
-        double[] coords_nuevo2 = nuevo[0].getCoords();
+        double[] coords_nuevo1 = nuevo[0].getCoords().clone();
+        double[] coords_nuevo2 = nuevo[0].getCoords().clone();
 
         int i;
         for (i = 0; i < cambio; ++i) {
@@ -97,7 +100,7 @@ public abstract class Individuo implements Comparable<Individuo>{
         }
         for (; i < coords.length; ++i) {
             coords_nuevo1[i] = individuo2.getCoords()[i];
-            coords_nuevo1[i] = coords[i];
+            coords_nuevo2[i] = coords[i];
         }
         nuevo[0].setCoords(coords_nuevo1);
         nuevo[1].setCoords(coords_nuevo2);
@@ -164,4 +167,11 @@ public abstract class Individuo implements Comparable<Individuo>{
         return Double.compare(getFitness(), o.getFitness());
     }
 
+    @Override
+    public String toString() {
+        return "Individuo{" +
+                "fitness=" + fitness +
+                ", coords=" + Arrays.toString(coords) +
+                '}';
+    }
 }
