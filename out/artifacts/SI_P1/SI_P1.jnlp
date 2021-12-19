@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp xmlns:jfx="http://javafx.com" spec="1.0" href="SI_P1.jnlp">
+  <information>
+    <title>SI_P1</title>
+    <vendor>Unknown</vendor>
+    <description>SI_P1</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="SI_P1.jar" size="392010" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="600" height="400" main-class="Controlador.Main"  name="SI_P1" />
+  <update check="background"/>
+</jnlp>

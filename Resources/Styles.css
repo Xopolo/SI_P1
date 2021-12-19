@@ -1,0 +1,11 @@
+panel_inicio {
+    -fx-background-color:  rgb(40, 44, 52);
+}
+
+.choice-box {
+    -fx-text-fill: black;
+}
+
+.texto-blanco {
+    -fx-text-fill: white;
+}

@@ -25,3 +25,6 @@ hs_err_pid*
 # Idea folder
 /.idea
 SI_P1.iml
+/Resultados
+/target/
+/.idea/
